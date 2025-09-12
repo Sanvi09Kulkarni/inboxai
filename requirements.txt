@@ -1,0 +1,9 @@
+transformers
+torch
+sentencepiece
+beautifulsoup4
+lxml
+pandas
+streamlit
+spacy
+python-dotenv
