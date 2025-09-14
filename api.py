@@ -26,3 +26,9 @@ def summarize_email(request: EmailRequest):
         "summary": summary,
         "action_items": action_items
     }
+import os
+import uvicorn
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))  # Railway provides PORT automatically
+    uvicorn.run("api:app", host="0.0.0.0", port=port, reload=False)
