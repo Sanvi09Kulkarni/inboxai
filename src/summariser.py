@@ -1,26 +1,23 @@
 import os
 import requests
 
-# Read Hugging Face API token from environment variables
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
-API_URL = "https://api-inference.huggingface.co/models/google/pegasus-xsum"
+HF_API_KEY = os.getenv("HF_API_KEY")  # Read token from env variable
+HF_MODEL = "facebook/bart-large-cnn"  # Hosted model on HuggingFace
 
-headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
 
-def summarize_text(text):
-    if not HF_API_TOKEN:
-        return "[Error: Hugging Face token not set]"
-
-    payload = {"inputs": text}
-    response = requests.post(API_URL, headers=headers, json=payload)
-
+def summarize_text(text, max_length=130, min_length=30):
+    payload = {
+        "inputs": text,
+        "parameters": {"max_length": max_length, "min_length": min_length, "do_sample": False},
+    }
+    response = requests.post(API_URL, headers=HEADERS, json=payload)
     if response.status_code != 200:
-        return f"[Error: {response.status_code} - {response.text}]"
-
-    try:
-        result = response.json()
-        return result[0].get("summary_text", "[Error: No summary returned]")
-    except Exception as e:
-        return f"[Error: Failed to parse response: {str(e)}]"
+        return f"⚠️ API Error: {response.status_code} - {response.text}"
+    data = response.json()
+    if isinstance(data, list) and "summary_text" in data[0]:
+        return data[0]["summary_text"]
+    return "⚠️ No summary generated (empty response)"
 
 
