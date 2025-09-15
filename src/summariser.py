@@ -1,23 +1,25 @@
-import os
-import requests
+from transformers import pipeline
 
-HF_API_KEY = os.getenv("HF_API_KEY")  # Read token from env variable
-HF_MODEL = "facebook/bart-large-cnn"  # Hosted model on HuggingFace
-
-API_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
-HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"}
+# ✅ Load model locally (no API key required, will work on Railway too if dependencies installed)
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 def summarize_text(text, max_length=130, min_length=30):
-    payload = {
-        "inputs": text,
-        "parameters": {"max_length": max_length, "min_length": min_length, "do_sample": False},
-    }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    if response.status_code != 200:
-        return f"⚠️ API Error: {response.status_code} - {response.text}"
-    data = response.json()
-    if isinstance(data, list) and "summary_text" in data[0]:
-        return data[0]["summary_text"]
-    return "⚠️ No summary generated (empty response)"
+    """
+    Summarizes the given text using the BART summarization model.
+    Args:
+        text (str): The input text to summarize.
+        max_length (int): Maximum number of tokens in summary.
+        min_length (int): Minimum number of tokens in summary.
+    Returns:
+        str: Generated summary text.
+    """
+    if not text.strip():
+        return "⚠️ Cannot summarize empty text."
 
-
+    try:
+        result = summarizer(text, max_length=max_length, min_length=min_length, do_sample=False)
+        if isinstance(result, list) and "summary_text" in result[0]:
+            return result[0]["summary_text"]
+        return "⚠️ No summary generated (empty response)"
+    except Exception as e:
+        return f"⚠️ Error during summarization: {str(e)}"
