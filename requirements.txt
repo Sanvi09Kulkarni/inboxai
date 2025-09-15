@@ -1,13 +1,8 @@
 fastapi
 uvicorn
-requests
-streamlit
-python-dotenv
-pandas
-spacy
-beautifulsoup4
-pydantic
 transformers==4.56.1
-torch
+torch==2.7.1
+pydantic
 requests
 beautifulsoup4
+streamlit
