@@ -7,3 +7,7 @@ pandas
 spacy
 beautifulsoup4
 pydantic
+transformers==4.56.1
+torch
+requests
+beautifulsoup4
