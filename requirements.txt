@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 transformers==4.56.1
-torch==2.7.1
+torch==2.7.1+cpu --index-url https://download.pytorch.org/whl/cpu
 pydantic
 requests
 beautifulsoup4
