@@ -1,36 +1,24 @@
-import streamlit as st
-from src.preprocess import clean_email
-from src.summariser import summarize_text
-from src.action_items import extract_action_items
+import gradio as gr
+from transformers import pipeline
 
-st.title("AI Inbox Summariser — Demo")
+# Load smaller, faster model
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
-# File uploader
-uploaded_files = st.file_uploader(
-    "Upload email files (.txt or .eml)", 
-    type=["txt", "eml"],
-    accept_multiple_files=True
+def summarize_email(text):
+    if not text.strip():
+        return "⚠️ Cannot summarize empty text."
+    result = summarizer(text, max_length=80, min_length=10, do_sample=False)
+    return result[0]['summary_text']
+
+# Build a simple UI
+demo = gr.Interface(
+    fn=summarize_email,
+    inputs=gr.Textbox(lines=8, placeholder="Paste email text here..."),
+    outputs="text",
+    title="AI Inbox Summarizer",
+    description="Paste an email and get a quick summary using a distilled BART model."
 )
 
-emails = []
-
-if uploaded_files:
-    for uploaded_file in uploaded_files:
-        content = uploaded_file.read().decode("utf-8", errors="ignore")
-        emails.append(content)
-
-    st.success(f"{len(emails)} emails uploaded successfully ✅")
-
-    if emails and st.button("Summarize All Emails"):
-        for i, email in enumerate(emails, 1):
-            st.subheader(f"📩 Email {i}")
-            cleaned = clean_email(email)
-            summary = summarize_text(cleaned)
-            action_items = extract_action_items(cleaned)
-
-            # Display results
-            st.markdown(f"**Summary:**\n\n{summary}")
-            st.markdown("**Action items detected:**")
-            for item in action_items:
-                st.markdown(f"- {item}")
+if __name__ == "__main__":
+    demo.launch()
 
