@@ -4,8 +4,11 @@ from transformers import pipeline
 
 app = FastAPI()
 
-# ✅ Use a public summarization model (no token required)
+# ✅ Load lightweight model
 summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+
+# ✅ Warm up once at startup to prevent first-request timeout
+summarizer("This is a warmup text to load the model.", max_length=20, min_length=5)
 
 class EmailRequest(BaseModel):
     text: str
@@ -21,4 +24,3 @@ def summarize_email(request: EmailRequest):
         return {"summary": summary[0]['summary_text']}
     except Exception as e:
         return {"error": str(e)}
-
