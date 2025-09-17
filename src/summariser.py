@@ -1,7 +1,7 @@
 from transformers import pipeline
 
 # ✅ Load model locally (no API key required, will work on Railway too if dependencies installed)
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
 def summarize_text(text, max_length=130, min_length=30):
     """
